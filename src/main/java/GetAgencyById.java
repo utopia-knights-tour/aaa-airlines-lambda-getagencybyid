@@ -1,0 +1,41 @@
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.google.gson.Gson;
+
+import entity.Agency;
+import proxy.ApiGatewayProxyResponse;
+import proxy.ApiGatewayRequest;
+import util.ConnectUtil;
+
+public class GetAgencyById implements RequestHandler<ApiGatewayRequest, Object> {
+
+	public Object handleRequest(ApiGatewayRequest request, Context context) {
+		Agency agency = new Agency();
+		Connection connection = null;
+		LambdaLogger logger = context.getLogger();
+		try {
+			connection = ConnectUtil.getInstance().getConnection();
+			PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM Agency WHERE Agency.agencyId = ?");
+			pstmt.setLong(1, Long.parseLong(request.getPathParameters().get("agencyId")));
+			ResultSet rs = pstmt.executeQuery();
+			if (!rs.next()) {
+				return new ApiGatewayProxyResponse(404, null, null);
+			}
+			agency.setId(rs.getLong("agencyId"));
+			agency.setName(rs.getString("agencyName"));
+			agency.setAddress(rs.getString("agencyAddress"));
+			agency.setPhone(rs.getString("agencyPhone"));
+		} catch (ClassNotFoundException | NullPointerException | NumberFormatException | SQLException e) {
+			logger.log(e.getMessage());
+			return new ApiGatewayProxyResponse(400, null, null);
+		}
+		return new ApiGatewayProxyResponse(200, null, new Gson().toJson(agency));
+	}
+}
