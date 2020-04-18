@@ -14,9 +14,9 @@ import proxy.ApiGatewayProxyResponse;
 import proxy.ApiGatewayRequest;
 import util.ConnectUtil;
 
-public class GetAgencyById implements RequestHandler<ApiGatewayRequest, Object> {
+public class GetAgencyById implements RequestHandler<ApiGatewayRequest, ApiGatewayProxyResponse> {
 
-	public Object handleRequest(ApiGatewayRequest request, Context context) {
+	public ApiGatewayProxyResponse handleRequest(ApiGatewayRequest request, Context context) {
 		Agency agency = new Agency();
 		Connection connection = null;
 		LambdaLogger logger = context.getLogger();
@@ -32,9 +32,12 @@ public class GetAgencyById implements RequestHandler<ApiGatewayRequest, Object> 
 			agency.setName(rs.getString("agencyName"));
 			agency.setAddress(rs.getString("agencyAddress"));
 			agency.setPhone(rs.getString("agencyPhone"));
-		} catch (ClassNotFoundException | NullPointerException | NumberFormatException | SQLException e) {
+		} catch (NullPointerException | NumberFormatException | SQLException e) {
 			logger.log(e.getMessage());
 			return new ApiGatewayProxyResponse(400, null, null);
+		} catch (ClassNotFoundException e) {
+			logger.log(e.getMessage());
+			return new ApiGatewayProxyResponse(500, null, null);
 		}
 		return new ApiGatewayProxyResponse(200, null, new Gson().toJson(agency));
 	}
