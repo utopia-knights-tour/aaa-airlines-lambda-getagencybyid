@@ -21,6 +21,9 @@ public class GetAgencyById implements RequestHandler<ApiGatewayRequest, ApiGatew
 		Connection connection = null;
 		LambdaLogger logger = context.getLogger();
 		try {
+			if (request.getPathParameters() == null || request.getPathParameters().get("agencyId") == null) {
+				return new ApiGatewayProxyResponse(400, null, null);
+			}
 			connection = ConnectUtil.getInstance().getConnection();
 			PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM Agency WHERE Agency.agencyId = ?");
 			pstmt.setLong(1, Long.parseLong(request.getPathParameters().get("agencyId")));
@@ -32,7 +35,7 @@ public class GetAgencyById implements RequestHandler<ApiGatewayRequest, ApiGatew
 			agency.setName(rs.getString("agencyName"));
 			agency.setAddress(rs.getString("agencyAddress"));
 			agency.setPhone(rs.getString("agencyPhone"));
-		} catch (NullPointerException | NumberFormatException | SQLException e) {
+		} catch (NumberFormatException | SQLException e) {
 			logger.log(e.getMessage());
 			return new ApiGatewayProxyResponse(400, null, null);
 		} catch (ClassNotFoundException e) {
