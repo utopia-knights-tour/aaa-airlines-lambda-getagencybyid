@@ -1,7 +1,4 @@
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.amazonaws.services.lambda.runtime.Context;
@@ -12,29 +9,24 @@ import com.google.gson.Gson;
 import entity.Agency;
 import proxy.ApiGatewayProxyResponse;
 import proxy.ApiGatewayRequest;
-import util.ConnectUtil;
+import service.AgentService;
 
 public class GetAgencyById implements RequestHandler<ApiGatewayRequest, ApiGatewayProxyResponse> {
 
+	private AgentService agentService = new AgentService();
+
 	public ApiGatewayProxyResponse handleRequest(ApiGatewayRequest request, Context context) {
-		Agency agency = new Agency();
-		Connection connection = null;
 		LambdaLogger logger = context.getLogger();
 		try {
 			if (request.getPathParameters() == null || request.getPathParameters().get("agencyId") == null) {
 				return new ApiGatewayProxyResponse(400, null, null);
 			}
-			connection = ConnectUtil.getInstance().getConnection();
-			PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM Agency WHERE Agency.agencyId = ?");
-			pstmt.setLong(1, Long.parseLong(request.getPathParameters().get("agencyId")));
-			ResultSet rs = pstmt.executeQuery();
-			if (!rs.next()) {
+			Agency agency = agentService.getAgencyById(Long.parseLong(request.getPathParameters().get("agencyId")));
+			if (agency == null) {
 				return new ApiGatewayProxyResponse(404, null, null);
 			}
-			agency.setId(rs.getLong("agencyId"));
-			agency.setName(rs.getString("agencyName"));
-			agency.setAddress(rs.getString("agencyAddress"));
-			agency.setPhone(rs.getString("agencyPhone"));
+			return new ApiGatewayProxyResponse(200, null, new Gson().toJson(agency));
+
 		} catch (NumberFormatException | SQLException e) {
 			logger.log(e.getMessage());
 			return new ApiGatewayProxyResponse(400, null, null);
@@ -42,6 +34,5 @@ public class GetAgencyById implements RequestHandler<ApiGatewayRequest, ApiGatew
 			logger.log(e.getMessage());
 			return new ApiGatewayProxyResponse(500, null, null);
 		}
-		return new ApiGatewayProxyResponse(200, null, new Gson().toJson(agency));
 	}
 }
