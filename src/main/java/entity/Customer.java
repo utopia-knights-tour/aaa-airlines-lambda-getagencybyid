@@ -1,12 +1,12 @@
 package entity;
 
-public class Agency {
+public class Customer {
 	private Long id;
 	private String name;
 	private String address;
 	private String phone;
 
-	public Long getid() {
+	public Long getId() {
 		return id;
 	}
 

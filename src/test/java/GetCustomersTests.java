@@ -13,7 +13,7 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import proxy.ApiGatewayProxyResponse;
 import proxy.ApiGatewayRequest;
 
-public class GetAgencyByIdTests {
+public class GetCustomersTests {
 
 	private static Context context = null;
 	private static LambdaLogger logger = null;
@@ -31,7 +31,7 @@ public class GetAgencyByIdTests {
 		Map<String, String> pathParameters = new HashMap<String, String>();
 		pathParameters.put("agencyId", "1");
 		Mockito.when(request.getPathParameters()).thenReturn(pathParameters);
-		ApiGatewayProxyResponse response = new GetAgencyById().handleRequest(request, context);
+		ApiGatewayProxyResponse response = new GetCustomers().handleRequest(request, context);
 		assertEquals(200, response.getStatusCode());
 	}
 
@@ -41,7 +41,7 @@ public class GetAgencyByIdTests {
 		Map<String, String> pathParameters = new HashMap<String, String>();
 		pathParameters.put("agencyId", "a");
 		Mockito.when(request.getPathParameters()).thenReturn(pathParameters);
-		ApiGatewayProxyResponse response = new GetAgencyById().handleRequest(request, context);
+		ApiGatewayProxyResponse response = new GetCustomers().handleRequest(request, context);
 		assertEquals(400, response.getStatusCode());
 	}
 
@@ -51,7 +51,7 @@ public class GetAgencyByIdTests {
 		Map<String, String> pathParameters = new HashMap<String, String>();
 		pathParameters.put("agencyId", "0");
 		Mockito.when(request.getPathParameters()).thenReturn(pathParameters);
-		ApiGatewayProxyResponse response = (ApiGatewayProxyResponse) new GetAgencyById().handleRequest(request,
+		ApiGatewayProxyResponse response = (ApiGatewayProxyResponse) new GetCustomers().handleRequest(request,
 				context);
 		assertEquals(404, response.getStatusCode());
 	}
