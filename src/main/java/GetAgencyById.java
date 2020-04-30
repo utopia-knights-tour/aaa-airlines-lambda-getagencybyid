@@ -1,5 +1,7 @@
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
@@ -25,7 +27,9 @@ public class GetAgencyById implements RequestHandler<ApiGatewayRequest, ApiGatew
 			if (agency == null) {
 				return new ApiGatewayProxyResponse(404, null, null);
 			}
-			return new ApiGatewayProxyResponse(200, null, new Gson().toJson(agency));
+			Map<String, String> headers = new HashMap<String, String>();
+			headers.put("Access-Control-Allow-Origin", "*");
+			return new ApiGatewayProxyResponse(200, headers, new Gson().toJson(agency));
 
 		} catch (NumberFormatException | SQLException e) {
 			logger.log(e.getMessage());
